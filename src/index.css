@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+
+.hanging-button {
+     position: absolute;
+    top: 100%;
+    right: 1px;
+    display: flex
+;
+    flex-direction: column;
+    align-items: center;
+    animation: swing 2s infinite ease-in-out;
+    z-index: 1000;
+}
+
+.hanger {
+  width: 2px;
+  height: 35px;
+  background: black;
+  margin-bottom: 5px;
+}
+
+.download-apk-btn {
+  text-decoration: none;
+  padding: 12px 25px;
+  border: 2px solid red;
+  border-radius: 10px;
+  background: transparent;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 0 10px red, 0 0 20px red inset;
+  animation: pulse 1.5s infinite alternate;
+  transition: 0.3s;
+}
+
+.download-apk-btn:hover {
+  background: red;
+  color: white;
+}
+/* @keyframes pluse{
+    0%{
+        box-shadow: 0 0 10px red, 0 0 20px red inset;
+    }
+    100%{
+        box-shadow: 0 0 20px red, 0 0 30px red inset;
+    }
+} */
+
+.pulse-green
+ {
+    border: 2px solid #28a745;
+    color: #28a745;
+    animation: pulse-green 0.7s infinite;
+}
+.default-button {
+  position: relative;
+  font-size: 1.125rem;
+  color: #ff0052;
+  font-weight: 700;
+  transition: 0.3s cubic-bezier(0.79, 0.14, 0.15, 0.86);
+  padding: 0 1rem;
+  line-height: 60px;
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  border-radius: 3px;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.default-button:before {
+  background-color: #fff;
+  z-index: 1;
+  box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+}
+
+.default-button:after,
+.default-button:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: 0.3s cubic-bezier(0.79, 0.14, 0.15, 0.86);
+  height: 100%;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.default-button span {
+  position: relative;
+  z-index: 2;
+}
+
+.default-button:after {
+  background-color: #ff0052;
+  transform: translate(4px, 4px);
+  z-index: 0;
+}
