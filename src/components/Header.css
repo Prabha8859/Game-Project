@@ -12,12 +12,12 @@
 			z-index: 1000;
 		}
         	/* Rope/danda */
-		.hanger {
+		/* .hanger {
 			width: 2px;
 			height: 35px;
 			background: black;
-			margin-bottom: 5px;
-		}
+			margin-bottom: -1px;
+		} */
 
 		
 
@@ -129,12 +129,7 @@
     animation: swing 2s infinite ease-in-out;
     z-index: 1000;
 }
-.hanger {
-    width: 2px;
-    height: 35px;
-    background: black;
-    margin-bottom: 5px;
-}
+
 .download-apk-btn {
     text-decoration: none;
     padding: 12px 25px;
@@ -1058,12 +1053,12 @@
 		}
 
 		/* Rope/danda */
-		.hanger {
+		/* .hanger {
 			width: 2px;
 			height: 35px;
 			background: black;
-			margin-bottom: 5px;
-		}
+			margin-bottom: 0px;
+		} */
 
 		/* Button style */
 		.download-apk-btn {

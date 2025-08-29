@@ -10,6 +10,8 @@ import FormModal from "./FormModal";
 import CardSection from "./header/CardSection";
 import PlayzoloSection from "./header/PlayzoloSection";
 import GamingSection from "./header/GamingSection";
+import CasinoShowcase from "./header/CasinoShowcase";
+import FloatingZoomCards from "./header/FloatingZoomCards";
 
 const Header = ({ isLoggedIn = false }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -19,17 +21,18 @@ const Header = ({ isLoggedIn = false }) => {
   const [typewriterIndex, setTypewriterIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [amount, setAmount] = useState(2733168); // counter amount
-   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     setIsFormOpen(true);
   }, []);
 
-
   // Refs for voices
   const voice1Ref = useRef(null);
   const voice2Ref = useRef(null);
   const voice3Ref = useRef(null);
+  const downloadBtnRef = useRef(null);
+  const hangerRef = useRef(null); // Ref for the hanger div
 
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
@@ -83,52 +86,76 @@ const Header = ({ isLoggedIn = false }) => {
   }, []);
 
   // ✅ Voice autoplay fix (user interaction required)
-// ✅ Voice sequential play
+  // ✅ Voice sequential play
+  useEffect(() => {
+    const v1 = voice1Ref.current;
+    const v2 = voice2Ref.current;
+    const v3 = voice3Ref.current;
+
+    const playSequentially = async () => {
+      try {
+        await v1.play();
+        // wait for v1 to end
+        await new Promise((resolve) => {
+          v1.onended = resolve;
+        });
+
+        await v2.play();
+        await new Promise((resolve) => {
+          v2.onended = resolve;
+        });
+
+        await v3.play();
+        await new Promise((resolve) => {
+          v3.onended = resolve;
+        });
+      } catch (err) {
+        console.log("Audio play error:", err);
+      }
+    };
+
+    const handleClick = () => {
+      playSequentially();
+      document.body.removeEventListener("click", handleClick);
+      // repeat every 2 minutes
+      setInterval(playSequentially, 2 * 60 * 1000);
+    };
+
+    document.body.addEventListener("click", handleClick);
+
+    return () => document.body.removeEventListener("click", handleClick);
+  }, []);
+
+  // ✅ Smooth Horizontal Movement for Download Button and Hanger
 useEffect(() => {
-  const v1 = voice1Ref.current;
-  const v2 = voice2Ref.current;
-  const v3 = voice3Ref.current;
+  const button = downloadBtnRef.current;
+  const hanger = hangerRef.current;
+  if (!button || !hanger) return;
 
-  const playSequentially = async () => {
-    try {
-      await v1.play();
-      // wait for v1 to end
-      await new Promise((resolve) => {
-        v1.onended = resolve;
-      });
+  let direction = 1;
+  let currentPosition = 0;
+  const maxMovement = 10; // Pixels to move left and right
+  const speed = 0.20; // Speed increased to make it faster
 
-      await v2.play();
-      await new Promise((resolve) => {
-        v2.onended = resolve;
-      });
+  function animate() {
+    currentPosition += direction * speed;
 
-      await v3.play();
-      await new Promise((resolve) => {
-        v3.onended = resolve;
-      });
-    } catch (err) {
-      console.log("Audio play error:", err);
+    if (currentPosition > maxMovement || currentPosition < -5) {
+      direction *= -1; // Reverse direction
     }
-  };
 
-  const handleClick = () => {
-    playSequentially();
-    document.body.removeEventListener("click", handleClick);
-    // repeat every 2 minutes
-    setInterval(playSequentially, 2 * 60 * 1000);
-  };
+    button.style.transform = `translateX(${currentPosition}px)`;
+    hanger.style.transform = `translateX(${currentPosition}px)`;
+    requestAnimationFrame(animate);
+  }
 
-  document.body.addEventListener("click", handleClick);
-
-  return () => document.body.removeEventListener("click", handleClick);
+  animate();
 }, []);
-
-
   const formattedAmount = amount.toLocaleString("en-IN");
 
   return (
     <>
-     <FormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+      <FormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
       {/* ---------- Header ---------- */}
       <header className="fixed w-full z-[999] top-0 left-0 bg-blue-950/30 backdrop-blur-2xl shadow-xl border-b border-white/10 animate-fadeInDown">
         <div className="container mx-auto px-4">
@@ -151,8 +178,9 @@ useEffect(() => {
 
                 {/* Hanging Download APK Button */}
                 <div className="hanging-button absolute top-full right-1 flex flex-col items-center z-[1000]">
-                  <div className="hanger"></div>
+                  <div ref={hangerRef} className="hanger"></div> {/* Add ref to hanger */}
                   <a
+                    ref={downloadBtnRef} // Add the ref here
                     href="https://github.com/testitg/PlayZelo/releases/download/PlayZelo_V2.0/playzelo-release.apk"
                     className="download-apk-btn"
                   >
@@ -303,19 +331,21 @@ useEffect(() => {
             </div>
           </div>
         </div>
-         <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 z-20">
     <CounterSection />
   </div>
 
       </section>
 
       {<CardSection/>}
-     <section>
-       {<PlayzoloSection/>}
-     </section>
+      <section>
+        {<PlayzoloSection/>}
+      </section>
       {<GamingSection/>}
+      {<CasinoShowcase/>}
+      {<FloatingZoomCards/>}
 
-     
+      
       {/* ---------- Voices (Audio Elements) ---------- */}
       <audio
         ref={voice1Ref}

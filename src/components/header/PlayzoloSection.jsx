@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Play, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ReactCountryFlag from "react-country-flag";
+
 import minesImg from "../../assets/images/jaqport/10.jpg";
 import teenpattiImg from "../../assets/images/jaqport/mines.png";
 import ludoImg from "../../assets/images/jaqport/12.jpg";
@@ -170,17 +172,46 @@ const CasinoInterface = () => {
 
               {/* Winners List */}
               <div className="p-6">
-                <div className="space-y-4">
-                  {winners.map((winner) => (
-                    <div key={winner.rank} className="flex items-center justify-between py-2">
-                      <div className="flex items-center space-x-4">
-                        <span className="text-white font-medium w-6">{winner.rank}.</span>
-                        <span className="text-white">{winner.name}</span>
-                      </div>
-                      <span className="text-green-400 font-bold">{winner.amount}</span>
-                    </div>
-                  ))}
-                </div>
+         <div className="space-y-0">
+  {winners.map((winner, idx) => (
+    <div
+      key={winner.rank}
+      className={
+        // Add bottom border on all but last row
+        `flex items-center justify-between py-2 px-2` +
+        (idx !== winners.length - 1 ? ' border-b border-white/20' : '')
+      }
+    >
+      {/* Left: Rank and Name */}
+      <div className="flex items-center space-x-4 w-1/3">
+        <span className="text-white font-medium w-6">{winner.rank}.</span>
+        <span className="text-white">{winner.name}</span>
+      </div>
+      
+      {/* Center: Flag in circle, country below */}
+      <div className="flex flex-col items-center w-1/3">
+        <span className="rounded-full bg-white flex justify-center items-center shadow h-10 w-10 mb-1">
+          <ReactCountryFlag
+            countryCode="IN"
+            svg
+            style={{
+              width: '2em',
+              height: '2em',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+            title="India"
+          />
+        </span>
+        <span className="text-xs text-white mt-0.5 font-medium">India</span>
+      </div>
+      
+      {/* Right: Amount */}
+      <span className="text-green-400 font-bold w-1/3 text-right">{winner.amount}</span>
+    </div>
+  ))}
+</div>
+
               </div>
             </div>
           </div>
