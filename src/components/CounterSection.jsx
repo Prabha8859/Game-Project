@@ -35,13 +35,13 @@ const PrizeBanner = () => {
     }
     if (index === 0) {
       return (
-        <div className="bg-gradient-to-b from-pink-400 to-pink-600 text-white text-3xl font-bold px-4 py-3 shadow-lg min-w-[60px] text-center">
+        <div className="bg-gradient-to-b from-pink-400 to-pink-600 text-white text-3xl font-bold px-3 py-3 shadow-lg min-w-[60px] text-center rounded-lg">
           {char}
         </div>
       );
     }
     return (
-      <div className="relative w-16 h-16 bg-gradient-to-b from-pink-400 to-pink-600 shadow-lg overflow-hidden">
+      <div className="relative w-14 h-14 bg-gradient-to-b from-pink-400 to-pink-600 shadow-lg overflow-hidden rounded-lg">
         {isAnimating ? (
           <div className="animate-roll">
             {[...Array(24)].map((_, idx) => (
@@ -76,7 +76,7 @@ const PrizeBanner = () => {
       `}</style>
 
       <div
-        className="relative w-[1050px] h-[150px] mx-auto bg-cover bg-center rounded-xl overflow-hidden shadow-lg"
+        className="relative w-[1050px] h-[150px] mx-auto bg-cover bg-center rounded-xl overflow-hidden shadow-lg "
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         {/* Decorative circles */}
@@ -100,7 +100,7 @@ const PrizeBanner = () => {
           </div>
 
           {/* Right */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1  rounded-lg">
             {prizeAmount.map((char, index) => (
               <NumberRoller key={index} char={char} index={index} />
             ))}

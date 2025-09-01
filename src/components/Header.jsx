@@ -21,18 +21,15 @@ const Header = ({ isLoggedIn = false }) => {
   const [typewriterIndex, setTypewriterIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [amount, setAmount] = useState(2733168); // counter amount
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(true); // Open form on first render
+  const [showScrollTop, setShowScrollTop] = useState(false); // Scroll to top button visibility
 
-  useEffect(() => {
-    setIsFormOpen(true);
-  }, []);
-
-  // Refs for voices
+  // Refs for voices and elements
   const voice1Ref = useRef(null);
   const voice2Ref = useRef(null);
   const voice3Ref = useRef(null);
   const downloadBtnRef = useRef(null);
-  const hangerRef = useRef(null); // Ref for the hanger div
+  const hangerRef = useRef(null);
 
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
@@ -48,33 +45,69 @@ const Header = ({ isLoggedIn = false }) => {
   const removeProfilePic = () => setProfilePic(null);
   const logoutUser = () => console.log("Logging out...");
 
-  // ✅ Typewriter Effect
+  // ✅ Scroll to Top Function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // ✅ Handle Scroll Event for Scroll to Top Button
   useEffect(() => {
-    const texts = [
-      "100% Legal & Secure",
-      "Play and Win Real Money|",
-      "Genuine Online Platform 🚀",
-    ];
-    const speed = 100;
-    const delayBetween = 2000;
-    let i = 0;
-    let charIndex = 0;
-
-    function typeWriter() {
-      if (charIndex < texts[typewriterIndex].length) {
-        setDisplayText((prev) => prev + texts[typewriterIndex][charIndex]);
-        charIndex++;
-        setTimeout(typeWriter, speed);
+    const handleScroll = () => {
+      if (window.pageYOffset > 300) {
+        setShowScrollTop(true);
       } else {
-        setTimeout(() => {
-          setDisplayText("");
-          charIndex = 0;
-          setTypewriterIndex((prev) => (prev + 1) % texts.length);
-        }, delayBetween);
+        setShowScrollTop(false);
       }
-    }
+    };
 
-    typeWriter();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // ✅ Typewriter Effect
+  const texts = [
+    "Win Big. Play Hard. Cash Out Fast.",
+     "very  Big. Play Hard good. Cash Out Fast.",
+  ];
+
+  useEffect(() => {
+    const speed = 120; // Slower typing speed
+    const delayBetween = 3000; // Longer pause between texts
+    const delayBeforeRestart = 1000; // Delay before clearing text
+    
+    let charIndex = 0;
+    let isDeleting = false;
+    let currentText = texts[typewriterIndex];
+
+    const typeEffect = () => {
+      if (!isDeleting && charIndex < currentText.length) {
+        // Typing forward
+        setDisplayText(currentText.substring(0, charIndex + 1));
+        charIndex++;
+        setTimeout(typeEffect, speed);
+      } else if (!isDeleting && charIndex === currentText.length) {
+        // Finished typing, wait then start deleting
+        setTimeout(() => {
+          isDeleting = true;
+          typeEffect();
+        }, delayBetween);
+      } else if (isDeleting && charIndex > 0) {
+        // Deleting backward
+        setDisplayText(currentText.substring(0, charIndex - 1));
+        charIndex--;
+        setTimeout(typeEffect, speed / 2); // Faster deletion
+      } else if (isDeleting && charIndex === 0) {
+        // Finished deleting, move to next text
+        isDeleting = false;
+        setTypewriterIndex((prev) => (prev + 1) % texts.length);
+        setTimeout(typeEffect, delayBeforeRestart);
+      }
+    };
+
+    typeEffect();
   }, [typewriterIndex]);
 
   // ✅ Counter Auto Increment
@@ -95,7 +128,6 @@ const Header = ({ isLoggedIn = false }) => {
     const playSequentially = async () => {
       try {
         await v1.play();
-        // wait for v1 to end
         await new Promise((resolve) => {
           v1.onended = resolve;
         });
@@ -117,7 +149,6 @@ const Header = ({ isLoggedIn = false }) => {
     const handleClick = () => {
       playSequentially();
       document.body.removeEventListener("click", handleClick);
-      // repeat every 2 minutes
       setInterval(playSequentially, 2 * 60 * 1000);
     };
 
@@ -127,38 +158,66 @@ const Header = ({ isLoggedIn = false }) => {
   }, []);
 
   // ✅ Smooth Horizontal Movement for Download Button and Hanger
-useEffect(() => {
-  const button = downloadBtnRef.current;
-  const hanger = hangerRef.current;
-  if (!button || !hanger) return;
+  useEffect(() => {
+    const button = downloadBtnRef.current;
+    const hanger = hangerRef.current;
+    if (!button || !hanger) return;
 
-  let direction = 1;
-  let currentPosition = 0;
-  const maxMovement = 10; // Pixels to move left and right
-  const speed = 0.20; // Speed increased to make it faster
+    let direction = 1;
+    let currentPosition = 0;
+    const maxMovement = 10;
+    const speed = 0.20;
 
-  function animate() {
-    currentPosition += direction * speed;
+    function animate() {
+      currentPosition += direction * speed;
 
-    if (currentPosition > maxMovement || currentPosition < -5) {
-      direction *= -1; // Reverse direction
+      if (currentPosition > maxMovement || currentPosition < -5) {
+        direction *= -1;
+      }
+
+      button.style.transform = `translateX(${currentPosition}px)`;
+      hanger.style.transform = `translateX(${currentPosition}px)`;
+      requestAnimationFrame(animate);
     }
 
-    button.style.transform = `translateX(${currentPosition}px)`;
-    hanger.style.transform = `translateX(${currentPosition}px)`;
-    requestAnimationFrame(animate);
-  }
+    animate();
+  }, []);
 
-  animate();
-}, []);
   const formattedAmount = amount.toLocaleString("en-IN");
 
   return (
     <>
       <FormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+      
+      {/* ---------- Scroll to Top Button ---------- */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="scrollToTop fixed right-6 z-[1000] w-10 h-10 bg-gradient-to-r from-pink-500/70 to-blue-500/70 backdrop-blur-md text-white shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-110 flex items-center justify-center group cursor-pointer"
+          style={{ 
+            bottom: '5%', 
+            opacity: showScrollTop ? 1 : 0,
+            transition: '0.5s',
+            borderRadius: '8px' // Square with rounded corners
+          }}
+        >
+          {/* Primary Arrow Icon */}
+          <div className="flex flex-col items-center justify-center">
+            <svg 
+              className="w-6 h-6 text-white animate-bounce" 
+              fill="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2L7 7h3v10h4V7h3L12 2z"/>
+            </svg>
+            <div className="text-xs font-bold ">TOP</div>
+          </div>
+        </button>
+      )}
+
       {/* ---------- Header ---------- */}
-      <header className="fixed w-full z-[999] top-0 left-0 bg-blue-950/30 backdrop-blur-2xl shadow-xl border-b border-white/10 animate-fadeInDown">
-        <div className="container mx-auto px-4">
+      <header className="container fixed w-[100%] z-[999] top-0 left-0 bg-blue-950/30 backdrop-blur-2xl shadow-xl border-b border-white/10 animate-fadeInDown px-15">
+        <div className="  px-4">
           <div className="flex flex-wrap justify-between items-center relative">
             {/* Logo (Desktop) */}
             <div className="hidden lg:inline-block">
@@ -178,9 +237,9 @@ useEffect(() => {
 
                 {/* Hanging Download APK Button */}
                 <div className="hanging-button absolute top-full right-1 flex flex-col items-center z-[1000]">
-                  <div ref={hangerRef} className="hanger"></div> {/* Add ref to hanger */}
+                  <div ref={hangerRef} className="hanger"></div>
                   <a
-                    ref={downloadBtnRef} // Add the ref here
+                    ref={downloadBtnRef}
                     href="https://github.com/testitg/PlayZelo/releases/download/PlayZelo_V2.0/playzelo-release.apk"
                     className="download-apk-btn"
                   >
@@ -296,7 +355,7 @@ useEffect(() => {
         {/* Overlay */}
         <div className="banner-overlay absolute inset-0 bg-black opacity-60"></div>
 
-        <div className="container relative z-10 ml-35 pb-4">
+        <div className="container relative z-10 ml-30 pb-4">
           <div className="row g-0">
             <div className="col-xl-6 col-lg-7 col-12">
               <div className="banner__content text-white lg:mb-[-150px] ">
@@ -304,8 +363,7 @@ useEffect(() => {
                   The Best Website
                 </h3>
 
-                {/* ✅ Typewriter Gradient Effect */}
-                <h1 className="text-3xl md:text-[6vw] lg:text-[2rem] font-extrabold max-w-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent  whitespace-nowrap overflow-hidden">
+                <h1 className="text-3xl md:text-[6vw] lg:text-[2rem] font-extrabold max-w-lg bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent whitespace-nowrap overflow-hidden typewriter-text">
                   {displayText}
                   <span className="cursor">|</span>
                 </h1>
@@ -331,21 +389,19 @@ useEffect(() => {
             </div>
           </div>
         </div>
-          <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 z-20">
-    <CounterSection />
-  </div>
-
+        <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 z-20">
+          <CounterSection />
+        </div>
       </section>
 
-      {<CardSection/>}
+      {<CardSection />}
       <section>
-        {<PlayzoloSection/>}
+        {<PlayzoloSection />}
       </section>
-      {<GamingSection/>}
-      {<CasinoShowcase/>}
-      {<FloatingZoomCards/>}
+      {<GamingSection />}
+      {<CasinoShowcase />}
+      {<FloatingZoomCards />}
 
-      
       {/* ---------- Voices (Audio Elements) ---------- */}
       <audio
         ref={voice1Ref}
